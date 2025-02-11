@@ -1,156 +1,133 @@
--- Creating the Books table
-CREATE TABLE Books (
-    BookID INT PRIMARY KEY,
-    Title VARCHAR(255) NOT NULL,
-    AuthorID INT,
-    Publisher VARCHAR(255),
-    YearPublished INT,
-    Available INT DEFAULT 1,
-    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
+-- Create Publishers Table
+CREATE TABLE Publishers (
+    publisher_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
 );
 
--- Creating the Authors table
+-- Create Authors Table
 CREATE TABLE Authors (
-    AuthorID INT PRIMARY KEY,
-    AuthorName VARCHAR(255) NOT NULL
+    author_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
 );
 
--- Creating the Borrowers table
-CREATE TABLE Borrowers (
-    BorrowerID INT PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    ContactInfo VARCHAR(255)
+-- Create Books Table
+CREATE TABLE Books (
+    book_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    isbn VARCHAR(20) UNIQUE,
+    publisher_id INT,
+    genre VARCHAR(50),
+    quantity INT CHECK (quantity >= 0),
+    FOREIGN KEY (publisher_id) REFERENCES Publishers(publisher_id)
 );
 
--- Creating the Loans table
-CREATE TABLE Loans (
-    LoanID INT PRIMARY KEY,
-    BookID INT,
-    BorrowerID INT,
-    LoanDate DATE,
-    DueDate DATE,
-    ReturnDate DATE,
-    FOREIGN KEY (BookID) REFERENCES Books(BookID),
-    FOREIGN KEY (BorrowerID) REFERENCES Borrowers(BorrowerID)
+-- Create Book_Authors Table
+CREATE TABLE Book_Authors (
+    book_id INT,
+    author_id INT,
+    PRIMARY KEY (book_id, author_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id),
+    FOREIGN KEY (author_id) REFERENCES Authors(author_id)
 );
 
--- Inserting data into Authors table
-INSERT INTO Authors (AuthorID, AuthorName) VALUES
-(1, 'Chetan Bhagat'),
-(2, 'Ruskin Bond'),
-(3, 'Arundhati Roy'),
-(4, 'R. K. Narayan'),
-(5, 'Salman Rushdie'),
-(6, 'Amitav Ghosh'),
-(7, 'Jhumpa Lahiri'),
-(8, 'Aravind Adiga'),
-(9, 'Kamala Das'),
-(10, 'Vikram Seth'),
-(11, 'Kiran Nagarkar'),
-(12, 'Anita Desai'),
-(13, 'Devdutt Pattanaik'),
-(14, 'Khushwant Singh'),
-(15, 'Tanuja Chandra');
+-- Create Users Table
+CREATE TABLE Users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(15),
+    role VARCHAR(20) CHECK (role IN ('student', 'librarian', 'admin'))
+);
 
--- Inserting data into Books table
-INSERT INTO Books (BookID, Title, AuthorID, Publisher, YearPublished, Available) VALUES
-(1, 'Five Point Someone', 1, 'Penguin India', 2004, 1),
-(2, 'The Room on the Roof', 2, 'Macmillan India', 1956, 1),
-(3, 'The God of Small Things', 3, 'Penguin India', 1997, 1),
-(4, 'Malgudi Days', 4, 'Penguin India', 1982, 1),
-(5, 'Midnight’s Children', 5, 'Random House India', 1981, 1),
-(6, 'The White Tiger', 6, 'HarperCollins India', 2008, 1),
-(7, 'The Interpreter of Maladies', 7, 'Mariner Books', 1999, 1),
-(8, 'The Inheritance of Loss', 8, 'Grove Press', 2005, 1),
-(9, 'The Guide', 4, 'Penguin India', 1958, 1),
-(10, 'Train to Pakistan', 14, 'Macmillan India', 1956, 1),
-(11, 'The Immortals of Meluha', 13, 'Westland Press', 2010, 1),
-(12, 'The Palace of Illusions', 11, 'Penguin India', 2008, 1),
-(13, 'Wings of Fire', 9, 'Universities Press', 1999, 1),
-(14, 'Clear Light of Day', 12, 'Penguin India', 1980, 1),
-(15, 'The History of Happiness', 10, 'HarperCollins India', 2002, 1),
-(16, 'The Secret Garden', 4, 'Penguin India', 1911, 1),
-(17, 'The Great Indian Novel', 15, 'Penguin India', 1989, 1),
-(18, 'The Alchemist', 11, 'HarperOne', 1988, 1),
-(19, 'The Catcher in the Rye', 5, 'Little, Brown and Company', 1951, 1),
-(20, 'The Hunger Games', 5, 'Scholastic Press', 2008, 1);
+-- Create Transactions Table
+CREATE TABLE Transactions (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT,
+    user_id INT,
+    issue_date DATE NOT NULL,
+    return_date DATE,
+    fine_amount DECIMAL(10, 2) DEFAULT 0,
+    FOREIGN KEY (book_id) REFERENCES Books(book_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    CHECK (issue_date <= return_date)
+);
 
--- Inserting data into Borrowers table
-INSERT INTO Borrowers (BorrowerID, Name, ContactInfo) VALUES 
-(1, 'Rajesh Kumar', 'rajesh.kumar@example.com'),
-(2, 'Aditi Sharma', 'aditi.sharma@example.com'),
-(3, 'Suresh Verma', 'suresh.verma@example.com'),
-(4, 'Priya Singh', 'priya.singh@example.com'),
-(5, 'Anjali Mehta', 'anjali.mehta@example.com'),
-(6, 'Vikas Agarwal', 'vikas.agarwal@example.com');
+INSERT INTO Publishers (name) VALUES
+('Penguin Random House'),
+('HarperCollins'),
+('Simon & Schuster'),
+('Hachette Livre'),
+('Macmillan Publishers'),
+('Scholastic Corporation'),
+('Pearson Education'),
+('Oxford University Press'),
+('Cambridge University Press'),
+('Springer Nature');
 
--- Inserting data into Loans table
-INSERT INTO Loans (LoanID, BookID, BorrowerID, LoanDate, DueDate, ReturnDate) VALUES
-(1, 1, 1, '2024-10-01', '2024-10-15', NULL),
-(2, 2, 2, '2024-10-05', '2024-10-19', NULL),
-(3, 3, 3, '2024-10-07', '2024-10-21', NULL),
-(4, 4, 1, '2024-10-08', '2024-10-22', NULL),
-(5, 5, 4, '2024-10-10', '2024-10-24', NULL),
-(6, 6, 2, '2024-10-12', '2024-10-26', NULL),
-(7, 1, 3, '2024-10-15', '2024-10-29', NULL),
-(8, 2, 4, '2024-10-18', '2024-11-01', NULL),
-(9, 3, 5, '2024-10-20', '2024-11-03', NULL),
-(10, 4, 6, '2024-10-22', '2024-11-05', NULL);
+INSERT INTO Authors (name) VALUES
+('J.K. Rowling'),
+('George R.R. Martin'),
+('Stephen King'),
+('Agatha Christie'),
+('J.R.R. Tolkien'),
+('Dan Brown'),
+('Jane Austen'),
+('Mark Twain'),
+('Leo Tolstoy'),
+('F. Scott Fitzgerald');
 
--- Query to check available books
---SELECT * FROM Books WHERE Available = 1;
+INSERT INTO Books (title, isbn, publisher_id, genre, quantity) VALUES
+('Harry Potter and the Sorcerer''s Stone', '978-0439554930', 1, 'Fantasy', 10),
+('A Game of Thrones', '978-0553103540', 2, 'Fantasy', 5),
+('The Shining', '978-0307743657', 3, 'Horror', 8),
+('Murder on the Orient Express', '978-0062073501', 4, 'Mystery', 7),
+('The Hobbit', '978-0547928227', 5, 'Fantasy', 12),
+('The Da Vinci Code', '978-0307474278', 6, 'Thriller', 9),
+('Pride and Prejudice', '978-0141439518', 7, 'Romance', 15),
+('The Adventures of Tom Sawyer', '978-0486400778', 8, 'Adventure', 6),
+('War and Peace', '978-1400079988', 9, 'Historical Fiction', 4),
+('The Great Gatsby', '978-0743273565', 10, 'Classic', 11);
 
--- Query to get loaned books
-SELECT B.Title, L.LoanDate, L.DueDate, Br.Name 
-FROM Loans L
-JOIN Books B ON L.BookID = B.BookID
-JOIN Borrowers Br ON L.BorrowerID = Br.BorrowerID
-WHERE L.ReturnDate IS NULL;
 
--- List All Borrowers Who Have Not Returned Books
-SELECT Br.Name, B.Title, L.LoanDate, L.DueDate
-FROM Loans L
-JOIN Borrowers Br ON L.BorrowerID = Br.BorrowerID
-JOIN Books B ON L.BookID = B.BookID
-WHERE L.ReturnDate IS NULL;
+INSERT INTO Book_Authors (book_id, author_id) VALUES
+(1, 1),  -- Harry Potter by J.K. Rowling
+(2, 2),  -- A Game of Thrones by George R.R. Martin
+(3, 3),  -- The Shining by Stephen King
+(4, 4),  -- Murder on the Orient Express by Agatha Christie
+(5, 5),  -- The Hobbit by J.R.R. Tolkien
+(6, 6),  -- The Da Vinci Code by Dan Brown
+(7, 7),  -- Pride and Prejudice by Jane Austen
+(8, 8),  -- The Adventures of Tom Sawyer by Mark Twain
+(9, 9),  -- War and Peace by Leo Tolstoy
+(10, 10); -- The Great Gatsby by F. Scott Fitzgerald
 
--- Check Availability of a Specific Book by Title
-SELECT Title, Available 
-FROM Books 
-WHERE Title = 'Five Point Someone';
+INSERT INTO Users (name, email, phone, role) VALUES
+('John Doe', 'john.doe@example.com', '1234567890', 'student'),
+('Jane Smith', 'jane.smith@example.com', '2345678901', 'student'),
+('Alice Johnson', 'alice.johnson@example.com', '3456789012', 'librarian'),
+('Bob Brown', 'bob.brown@example.com', '4567890123', 'student'),
+('Charlie Davis', 'charlie.davis@example.com', '5678901234', 'admin'),
+('Eva Green', 'eva.green@example.com', '6789012345', 'student'),
+('Frank White', 'frank.white@example.com', '7890123456', 'student'),
+('Grace Lee', 'grace.lee@example.com', '8901234567', 'librarian'),
+('Henry Wilson', 'henry.wilson@example.com', '9012345678', 'student'),
+('Ivy Taylor', 'ivy.taylor@example.com', '0123456789', 'admin');
 
--- List Borrowers Who Borrowed More Than One Book
-SELECT Br.Name, COUNT(L.BookID) AS BooksBorrowed
-FROM Loans L
-JOIN Borrowers Br ON L.BorrowerID = Br.BorrowerID
-GROUP BY Br.BorrowerID
-HAVING COUNT(L.BookID) > 1;
 
--- Get Borrower Information for a Specific Book
-SELECT Br.Name, Br.ContactInfo, L.LoanDate, L.DueDate
-FROM Loans L
-JOIN Borrowers Br ON L.BorrowerID = Br.BorrowerID
-JOIN Books B ON L.BookID = B.BookID
-WHERE B.Title = 'The Room on the Roof';
+INSERT INTO Transactions (book_id, user_id, issue_date, return_date, fine_amount) VALUES
+(1, 1, '2023-10-01', '2023-10-15', 0), 
+(2, 2, '2023-10-02', NULL, 2.50),     
+(3, 3, '2023-09-25', '2023-10-05', 0), 
+(4, 4, '2023-10-03', NULL, 1.00),     
+(5, 5, '2023-09-30', '2023-10-10', 0),
+(6, 6, '2023-10-04', NULL, 0),     
+(7, 7, '2023-10-05', '2023-10-20', 0), 
+(8, 8, '2023-09-28', '2023-10-08', 0),
+(9, 9, '2023-10-06', NULL, 3.00),  
+(10, 10, '2023-09-29', '2023-10-09', 0);
 
--- List of Books by a Specific Author
-SELECT B.Title
-FROM Books B
-JOIN Authors A ON B.AuthorID = A.AuthorID
-WHERE A.AuthorName = 'Arundhati Roy';
 
--- Count Total Number of Books Borrowed
-SELECT COUNT(BookID) AS TotalBooksBorrowed
-FROM Loans
-WHERE ReturnDate IS NULL;
 
--- List of Overdue Loans
-SELECT B.Title, Br.Name, L.DueDate, 
-       DATEDIFF(CURDATE(), L.DueDate) AS DaysOverdue
-FROM Loans L
-JOIN Books B ON L.BookID = B.BookID
-JOIN Borrowers Br ON L.BorrowerID = Br.BorrowerID
-WHERE L.DueDate < CURDATE() AND L.ReturnDate IS NULL;
 
 
 -- Get all books with their authors and publishers
@@ -160,13 +137,83 @@ JOIN Book_Authors ba ON b.book_id = ba.book_id
 JOIN Authors a ON ba.author_id = a.author_id
 JOIN Publishers p ON b.publisher_id = p.publisher_id;
 
+
 -- Get all books issued to a user
 SELECT b.title, t.issue_date, t.return_date
 FROM Transactions t
 JOIN Books b ON t.book_id = b.book_id
-WHERE t.user_id = 1;
+WHERE t.user_id = 1;  -- Replace 1 with the desired user_id
 
--- Calculate fine for overdue books (assuming fine is $1 per day)
+
+--  Get All Overdue Books
+SELECT b.title, u.name AS user_name, t.issue_date, t.fine_amount
+FROM Transactions t
+JOIN Books b ON t.book_id = b.book_id
+JOIN Users u ON t.user_id = u.user_id
+WHERE t.return_date IS NULL AND DATEDIFF(CURDATE(), t.issue_date) > 14;
+
+-- Get All Users with Their Issued Books
+
+SELECT u.name AS user_name, b.title AS book_title, t.issue_date, t.return_date
+FROM Transactions t
+JOIN Users u ON t.user_id = u.user_id
+JOIN Books b ON t.book_id = b.book_id;
+
+--Get Total Fine for a Specific User
+SELECT u.name, SUM(t.fine_amount) AS total_fine
+FROM Transactions t
+JOIN Users u ON t.user_id = u.user_id
+WHERE u.user_id = 1;  -- Replace 1 with the desired user_id
+
+--Update Book Quantity After Issuing a Book
+
+UPDATE Books
+SET quantity = quantity - 1
+WHERE book_id = 1;  -- Replace 1 with the desired book_id
+
+--Update Book Quantity After Returning a Book
+UPDATE Books
+SET quantity = quantity + 1
+WHERE book_id = 1;  -- Replace 1 with the desired book_id
+
+--Update Return Date and Calculate Fine for a Returned Book
 UPDATE Transactions
-SET fine_amount = DATEDIFF(CURDATE(), issue_date) * 1
-WHERE return_date IS NULL AND DATEDIFF(CURDATE(), issue_date) > 14;
+SET return_date = CURDATE(),
+    fine_amount = GREATEST(0, DATEDIFF(CURDATE(), issue_date) - 14) * 1  -- Fine is $1 per day after 14 days
+WHERE transaction_id = 1;  -- Replace 1 with the desired transaction_id
+
+--Update User Information
+
+UPDATE Users
+SET email = 'update_email@example.com', phone = '9876543210'
+WHERE user_id = 1;  -- Replace 1 with the desired user_id
+
+
+--Get Most Popular Books (Most Issued)
+SELECT b.title, COUNT(t.transaction_id) AS issue_count
+FROM Transactions t
+JOIN Books b ON t.book_id = b.book_id
+GROUP BY b.book_id
+ORDER BY issue_count DESC;
+
+--Get Users Who Have Not Returned Books
+
+SELECT u.name, b.title, t.issue_date
+FROM Transactions t
+JOIN Users u ON t.user_id = u.user_id
+JOIN Books b ON t.book_id = b.book_id
+WHERE t.return_date IS NULL;
+
+--Get Books by a Specific Author
+SELECT b.title, b.genre
+FROM Books b
+JOIN Book_Authors ba ON b.book_id = ba.book_id
+JOIN Authors a ON ba.author_id = a.author_id
+WHERE a.name = 'J.K. Rowling';
+
+
+--Get All Books Published by a Specific Publisher
+SELECT b.title, b.genre
+FROM Books b
+JOIN Publishers p ON b.publisher_id = p.publisher_id
+WHERE p.name = 'Simon & Schuster'; 
