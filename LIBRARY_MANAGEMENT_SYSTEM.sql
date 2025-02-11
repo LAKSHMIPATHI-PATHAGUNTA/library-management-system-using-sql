@@ -151,3 +151,22 @@ FROM Loans L
 JOIN Books B ON L.BookID = B.BookID
 JOIN Borrowers Br ON L.BorrowerID = Br.BorrowerID
 WHERE L.DueDate < CURDATE() AND L.ReturnDate IS NULL;
+
+
+-- Get all books with their authors and publishers
+SELECT b.title, a.name AS author, p.name AS publisher
+FROM Books b
+JOIN Book_Authors ba ON b.book_id = ba.book_id
+JOIN Authors a ON ba.author_id = a.author_id
+JOIN Publishers p ON b.publisher_id = p.publisher_id;
+
+-- Get all books issued to a user
+SELECT b.title, t.issue_date, t.return_date
+FROM Transactions t
+JOIN Books b ON t.book_id = b.book_id
+WHERE t.user_id = 1;
+
+-- Calculate fine for overdue books (assuming fine is $1 per day)
+UPDATE Transactions
+SET fine_amount = DATEDIFF(CURDATE(), issue_date) * 1
+WHERE return_date IS NULL AND DATEDIFF(CURDATE(), issue_date) > 14;
